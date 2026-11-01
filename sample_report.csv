@@ -1,0 +1,5 @@
+severity,service,resource,issue,fix
+HIGH,IAM,demo-user,MFA not enabled,Enable a virtual or hardware MFA device
+HIGH,EC2-SG,sg-0abc123 (demo-sg),Port 22 (SSH) open to the internet,Restrict source to your IP or a VPN/bastion host
+HIGH,S3,demo-bucket,No Block Public Access configuration,Enable all four S3 Block Public Access settings
+MEDIUM,IAM,old-user (AKIA...DEMO),Active access key is 120 days old,Rotate the key and deactivate the old one

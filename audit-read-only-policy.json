@@ -1,0 +1,21 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PostureReadOnlyChecks",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetAccountPasswordPolicy",
+        "iam:ListAccessKeys",
+        "iam:ListMFADevices",
+        "iam:ListUsers",
+        "ec2:DescribeSecurityGroups",
+        "s3:GetPublicAccessBlock",
+        "s3:ListAllMyBuckets",
+        "cloudtrail:DescribeTrails",
+        "cloudtrail:GetTrailStatus"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

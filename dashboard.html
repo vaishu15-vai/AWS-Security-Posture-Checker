@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AWS Sentinel | Security posture</title>
+  <style>
+    :root { color-scheme: dark; --bg:#08111f; --panel:#101d31; --panel2:#14253d; --text:#edf5ff; --muted:#91a5bd; --line:#263a55; --accent:#52d6b3; --high:#ff6b73; --medium:#ffbf69; --low:#6da8ff; }
+    * { box-sizing:border-box; } body { margin:0; font:14px/1.5 Inter,ui-sans-serif,system-ui,sans-serif; color:var(--text); background:radial-gradient(circle at 75% -20%,#19385b 0,transparent 42%),var(--bg); }
+    .shell { max-width:1240px; margin:auto; padding:34px 24px 60px; } header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:30px; }
+    .eyebrow { color:var(--accent); text-transform:uppercase; letter-spacing:.14em; font-weight:700; font-size:11px; } h1 { margin:8px 0 5px; font-size:clamp(28px,4vw,48px); letter-spacing:-.04em; } .sub { margin:0; color:var(--muted); }
+    button,.file-label { border:1px solid var(--line); background:var(--panel); color:var(--text); border-radius:10px; padding:11px 15px; font-weight:700; cursor:pointer; display:inline-block; } button.primary { background:var(--accent); color:#06231e; border-color:var(--accent); } button:hover,.file-label:hover { filter:brightness(1.13); }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; } input[type=file] { display:none; } .drop-active { outline:2px solid var(--accent); outline-offset:3px; }
+    .cards { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; } .card,.panel { background:linear-gradient(145deg,var(--panel),#0d192a); border:1px solid var(--line); border-radius:16px; } .card { padding:18px; } .card-label { color:var(--muted); } .card-value { display:block; font-size:34px; font-weight:800; margin-top:5px; } .card.high .card-value { color:var(--high); } .card.medium .card-value { color:var(--medium); } .card.low .card-value { color:var(--low); } .card.score .card-value { color:var(--accent); }
+    .panel { margin-top:18px; padding:22px; } .panel-head { display:flex; justify-content:space-between; gap:14px; align-items:center; flex-wrap:wrap; } h2 { font-size:17px; margin:0; } .risk { display:flex; height:12px; overflow:hidden; border-radius:20px; background:#223249; margin:20px 0 9px; } .risk span { transition:width .4s ease; } .risk-high { background:var(--high); }.risk-medium { background:var(--medium); }.risk-low { background:var(--low); } .legend { color:var(--muted); font-size:12px; display:flex; gap:18px; } .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; } .hint { margin:10px 0 0; color:var(--muted); font-size:12px; }
+    .analytics { display:grid; grid-template-columns:1fr 1fr; gap:18px; } .chart-box { min-height:230px; } canvas { width:100%; height:190px; display:block; margin-top:12px; } .service-list { display:grid; gap:12px; margin-top:18px; } .service-row { display:grid; grid-template-columns:90px 1fr 32px; align-items:center; gap:10px; font-size:12px; } .service-bar { height:8px; border-radius:8px; background:#223249; overflow:hidden; } .service-bar i { display:block; height:100%; background:var(--accent); border-radius:8px; }
+    .analyst { border-color:#286052; background:linear-gradient(145deg,#102d2d,#0d192a); } .analyst-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:20px; margin-top:17px; } .insight { color:#dce7f5; margin:0 0 12px; } .insight strong { color:var(--accent); } .plan { display:grid; gap:8px; padding:0; margin:0; list-style:none; counter-reset:step; } .plan li { counter-increment:step; color:var(--muted); } .plan li::before { content:counter(step); display:inline-grid; place-items:center; width:22px; height:22px; border-radius:50%; margin-right:8px; background:#1b5649; color:var(--accent); font-weight:800; } .chat { display:flex; gap:8px; margin-top:16px; } .chat input { flex:1; min-width:0; background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:9px; padding:10px 12px; } .answer { min-height:38px; margin:12px 0 0; color:var(--muted); }
+    .filters { display:flex; gap:10px; flex-wrap:wrap; } select,.search { background:var(--panel2); color:var(--text); border:1px solid var(--line); border-radius:9px; padding:10px 12px; } .search { min-width:240px; } .table-wrap { overflow:auto; margin:16px -22px -22px; } table { width:100%; min-width:760px; border-collapse:collapse; } th,td { text-align:left; padding:15px 22px; border-top:1px solid var(--line); vertical-align:top; } th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; } td { color:#dce7f5; } td.issue { min-width:250px; } td.fix { color:var(--muted); min-width:250px; } tbody tr { cursor:pointer; transition:background .15s ease; } tbody tr:hover { background:#172a44; } .badge { display:inline-flex; border-radius:20px; padding:4px 9px; font-size:11px; font-weight:800; } .badge.HIGH { color:#ffd9dc; background:#632b39; }.badge.MEDIUM { color:#ffe7bd; background:#5b4328; }.badge.LOW { color:#d5e5ff; background:#25436e; } .empty { color:var(--muted); text-align:center; padding:40px; }
+    dialog { max-width:540px; width:calc(100% - 32px); color:var(--text); background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:24px; } dialog::backdrop { background:#020812b8; } dialog h2 { margin-bottom:16px; } dialog p { color:var(--muted); } .detail-label { color:var(--accent); font-size:11px; text-transform:uppercase; letter-spacing:.1em; margin-top:16px; }
+    @media (max-width:760px) { .shell { padding:22px 14px 40px; } header { flex-direction:column; }.actions { justify-content:flex-start; }.cards { grid-template-columns:repeat(2,1fr); } .card-value { font-size:27px; } .panel { padding:16px; }.table-wrap { margin-left:-16px; margin-right:-16px; } th,td { padding-left:16px; padding-right:16px; } }
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header id="dropZone">
+    <div><div class="eyebrow">AWS Sentinel / posture console</div><h1>Security overview</h1><p class="sub">A focused view of the findings produced by your read-only audit.</p></div>
+    <div class="actions"><label class="file-label" for="csvFile">Open security_report.csv</label><input id="csvFile" type="file" accept=".csv,text/csv"><button id="demo">Load demo data</button><button id="reset">Reset filters</button><button id="export">Export view</button></div>
+  </header>
+  <section class="cards">
+    <article class="card"><span class="card-label">Total findings</span><strong class="card-value" id="total">0</strong></article>
+    <article class="card high"><span class="card-label">High risk</span><strong class="card-value" id="high">0</strong></article>
+    <article class="card medium"><span class="card-label">Medium risk</span><strong class="card-value" id="medium">0</strong></article>
+    <article class="card low"><span class="card-label">Low risk</span><strong class="card-value" id="low">0</strong></article>
+    <article class="card score"><span class="card-label">Risk score</span><strong class="card-value" id="score">100</strong></article>
+  </section>
+  <section class="panel"><div class="panel-head"><h2>Risk distribution</h2><span id="status" class="sub">Demo data loaded</span></div><div class="risk"><span id="riskHigh" class="risk-high"></span><span id="riskMedium" class="risk-medium"></span><span id="riskLow" class="risk-low"></span></div><div class="legend"><span><i class="dot" style="background:var(--high)"></i>High</span><span><i class="dot" style="background:var(--medium)"></i>Medium</span><span><i class="dot" style="background:var(--low)"></i>Low</span></div><p class="hint">Tip: drag a CSV report anywhere onto this header, or click a finding for its remediation details.</p></section>
+  <section class="analytics">
+    <div class="panel chart-box"><div class="panel-head"><h2>Severity trend</h2><button id="clearHistory">Clear history</button></div><canvas id="trendChart" width="600" height="190" aria-label="Finding count trend"></canvas><p class="hint">Scan snapshots are stored only in this browser.</p></div>
+    <div class="panel chart-box"><div class="panel-head"><h2>Findings by service</h2><span id="scanCount" class="sub"></span></div><div id="serviceList" class="service-list"></div></div>
+  </section>
+  <section class="panel analyst"><div class="panel-head"><h2>AI security analyst</h2><span class="sub">Offline analysis · no API key</span></div><div class="analyst-grid"><div><p id="aiSummary" class="insight"></p><ol id="aiPlan" class="plan"></ol></div><div><strong>Ask about this scan</strong><div class="chat"><input id="aiQuestion" placeholder="e.g. What should I fix first?"><button id="askAi" class="primary">Ask</button></div><p id="aiAnswer" class="answer">The analyst answers from the loaded findings and does not transmit data.</p></div></div></section>
+  <section class="panel"><div class="panel-head"><h2>Findings</h2><div class="filters"><input id="search" class="search" placeholder="Search resources or issues..." aria-label="Search findings"><select id="severity"><option value="">All severities</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select><select id="service"><option value="">All services</option></select></div></div><div class="table-wrap"><table><thead><tr><th>Severity</th><th>Service</th><th>Resource</th><th>Issue</th><th>Recommended fix</th></tr></thead><tbody id="rows"></tbody></table><div id="empty" class="empty" hidden>No findings match your filters.</div></div></section>
+</main>
+<dialog id="detail"><button id="closeDetail" style="float:right">Close</button><div class="eyebrow">Finding detail</div><h2 id="detailTitle"></h2><div class="detail-label">Resource</div><p id="detailResource"></p><div class="detail-label">Recommended remediation</div><p id="detailFix"></p></dialog>
+<script>
+const demoData = [
+  {severity:"HIGH",service:"IAM",resource:"test-user",issue:"MFA not enabled",fix:"Enable a virtual or hardware MFA device"},
+  {severity:"HIGH",service:"EC2-SG",resource:"sg-0abc123 (test-sg)",issue:"Port 22 (SSH) open to the internet",fix:"Restrict source to your IP or a VPN/bastion host"},
+  {severity:"HIGH",service:"S3",resource:"my-test-bucket",issue:"No Block Public Access configuration",fix:"Enable all four S3 Block Public Access settings"},
+  {severity:"MEDIUM",service:"IAM",resource:"old-user (AKIA...)",issue:"Active access key is 120 days old",fix:"Rotate the key and deactivate the old one"}
+];
+let findings = demoData;
+let visibleFindings = [];
+const $ = id => document.getElementById(id);
+const historyKey = "aws-sentinel-scan-history";
+let history = JSON.parse(localStorage.getItem(historyKey) || "[]");
+function saveSnapshot() { const snapshot = {time:new Date().toLocaleDateString(), total:findings.length, high:findings.filter(f=>f.severity==="HIGH").length, medium:findings.filter(f=>f.severity==="MEDIUM").length, low:findings.filter(f=>f.severity==="LOW").length}; history = [...history.slice(-9), snapshot]; localStorage.setItem(historyKey, JSON.stringify(history)); }
+function csvToRows(text) {
+  const lines = text.trim().split(/\r?\n/); if (lines.length < 2) return [];
+  const split = line => line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(v => v.replace(/^"|"$/g,"").replace(/""/g,'"'));
+  const headers = split(lines[0]).map(v => v.trim().toLowerCase());
+  return lines.slice(1).map(line => { const values = split(line); return Object.fromEntries(headers.map((h,i) => [h, values[i] || ""])); }).filter(row => row.severity);
+}
+function render() {
+  const severity = $("severity").value, service = $("service").value, query = $("search").value.toLowerCase();
+  const visible = findings.filter(f => (!severity || f.severity === severity) && (!service || f.service === service) && Object.values(f).join(" ").toLowerCase().includes(query));
+  ["HIGH","MEDIUM","LOW"].forEach(level => $(level.toLowerCase()).textContent = findings.filter(f => f.severity === level).length);
+  $("total").textContent = findings.length; const total = findings.length || 1;
+  const score = Math.max(0, Math.round(100 - (findings.filter(f=>f.severity==="HIGH").length * 15 + findings.filter(f=>f.severity==="MEDIUM").length * 6 + findings.filter(f=>f.severity==="LOW").length * 2)));
+  $("score").textContent = score;
+  $("riskHigh").style.width = `${findings.filter(f => f.severity==="HIGH").length/total*100}%`; $("riskMedium").style.width = `${findings.filter(f => f.severity==="MEDIUM").length/total*100}%`; $("riskLow").style.width = `${findings.filter(f => f.severity==="LOW").length/total*100}%`;
+  const serviceCounts = Object.entries(findings.reduce((all,f) => { all[f.service] = (all[f.service] || 0) + 1; return all; }, {})).sort((a,b) => b[1] - a[1]); const maxService = serviceCounts[0]?.[1] || 1;
+  $("serviceList").innerHTML = serviceCounts.length ? serviceCounts.map(([name,count]) => `<div class="service-row"><span>${escapeHtml(name)}</span><div class="service-bar"><i style="width:${count/maxService*100}%"></i></div><strong>${count}</strong></div>`).join("") : '<span class="sub">No service data</span>';
+  $("scanCount").textContent = `${serviceCounts.length} service${serviceCounts.length === 1 ? "" : "s"}`;
+  renderAnalyst();
+  visibleFindings = visible;
+  $("rows").innerHTML = visible.map((f, index) => `<tr data-index="${index}"><td><span class="badge ${f.severity}">${f.severity}</span></td><td>${escapeHtml(f.service)}</td><td>${escapeHtml(f.resource)}</td><td class="issue">${escapeHtml(f.issue)}</td><td class="fix">${escapeHtml(f.fix)}</td></tr>`).join("");
+  $("empty").hidden = visible.length > 0;
+  drawTrend();
+}
+function renderAnalyst() {
+  const high = findings.filter(f=>f.severity==="HIGH"), medium = findings.filter(f=>f.severity==="MEDIUM"), low = findings.filter(f=>f.severity==="LOW");
+  const top = [...findings].sort((a,b)=>({HIGH:3,MEDIUM:2,LOW:1}[b.severity]-({HIGH:3,MEDIUM:2,LOW:1}[a.severity])))[0];
+  if (!findings.length) { $("aiSummary").textContent = "No findings are loaded. Upload a security_report.csv or load the demo data to begin analysis."; $("aiPlan").innerHTML = ""; return; }
+  $("aiSummary").innerHTML = `I found <strong>${findings.length} issue${findings.length===1?"":"s"}</strong>, including <strong>${high.length} high-risk</strong> item${high.length===1?"":"s"}. The first recommended focus is <strong>${escapeHtml(top.issue)}</strong> in ${escapeHtml(top.service)}.`;
+  const steps = [];
+  if (high.length) steps.push(`Remediate ${high.length} high-risk finding${high.length===1?"":"s"} first, starting with ${high[0].service}.`);
+  if (findings.some(f=>f.service==="IAM")) steps.push("Review IAM MFA, password policy, and access-key age; remove unused credentials.");
+  if (findings.some(f=>f.service==="S3")) steps.push("Enable all S3 Block Public Access settings and verify bucket policies.");
+  if (findings.some(f=>f.service==="EC2-SG")) steps.push("Restrict internet-facing security-group rules to approved CIDRs.");
+  if (findings.some(f=>f.service==="CloudTrail")) steps.push("Confirm CloudTrail is logging in every required region and alert on stops.");
+  if (!medium.length && !low.length) steps.push("Run a follow-up scan after remediation to confirm the risk score improves.");
+  $("aiPlan").innerHTML = steps.slice(0,4).map(step=>`<li>${escapeHtml(step)}</li>`).join("");
+}
+function answerAi() {
+  const q = $("aiQuestion").value.toLowerCase(), high = findings.filter(f=>f.severity==="HIGH"), service = q.match(/\b(iam|s3|ec2|cloudtrail)\b/)?.[1];
+  let answer;
+  if (!findings.length) answer = "Load a report first, then I can analyze its findings.";
+  else if (q.includes("first") || q.includes("priority") || q.includes("urgent")) answer = high.length ? `Start with ${high[0].issue} (${high[0].service}). There are ${high.length} high-risk findings to resolve before lower-severity cleanup.` : "There are no high-risk findings. Start with the oldest or most business-critical medium finding.";
+  else if (q.includes("how many") || q.includes("count")) answer = `This scan has ${findings.length} total findings: ${high.length} high, ${findings.filter(f=>f.severity==="MEDIUM").length} medium, and ${findings.filter(f=>f.severity==="LOW").length} low.`;
+  else if (service) { const matches=findings.filter(f=>f.service.toLowerCase().includes(service)); answer = matches.length ? `${service.toUpperCase()} has ${matches.length} finding${matches.length===1?"":"s"}. The recommended fixes are: ${matches.map(f=>f.fix).join("; ")}.` : `No ${service.toUpperCase()} findings are present in this scan.`; }
+  else if (q.includes("score") || q.includes("risk")) answer = `The current risk score is ${$("score").textContent}/100. A higher score is better; resolve high-risk findings first to improve it.`;
+  else answer = "Try asking: “What should I fix first?”, “How many high findings?”, or “What does IAM need?”";
+  $("aiAnswer").textContent = answer;
+}
+function drawTrend() { const canvas=$("trendChart"), ctx=canvas.getContext("2d"), width=canvas.width, height=canvas.height; ctx.clearRect(0,0,width,height); if (!history.length) { ctx.fillStyle="#91a5bd"; ctx.font="14px system-ui"; ctx.fillText("Load a report to start history",20,90); return; } const max=Math.max(...history.map(s=>s.total),1), step=history.length===1 ? width/2 : width/(history.length-1); ctx.strokeStyle="#263a55"; ctx.lineWidth=1; for(let y=1;y<4;y++){ctx.beginPath();ctx.moveTo(0,y*height/4);ctx.lineTo(width,y*height/4);ctx.stroke();} ctx.strokeStyle="#52d6b3";ctx.lineWidth=3;ctx.beginPath();history.forEach((s,i)=>{const x=history.length===1?width/2:i*step,y=height-25-(s.total/max*(height-50));i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke(); history.forEach((s,i)=>{const x=history.length===1?width/2:i*step,y=height-25-(s.total/max*(height-50));ctx.fillStyle="#52d6b3";ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();ctx.fillStyle="#91a5bd";ctx.font="11px system-ui";ctx.fillText(`${s.total} · ${s.time}`,Math.max(0,x-28),height-5);}); }
+function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c])); }
+function refreshServices() { const selected = $("service").value; $("service").innerHTML = '<option value="">All services</option>' + [...new Set(findings.map(f=>f.service))].sort().map(s=>`<option>${escapeHtml(s)}</option>`).join(""); $("service").value = selected; }
+$("csvFile").addEventListener("change", event => { const file = event.target.files[0]; if (!file) return; loadFile(file); });
+$("demo").addEventListener("click", () => { findings = demoData; $("status").textContent = "Demo data loaded"; saveSnapshot(); refreshServices(); render(); });
+function loadFile(file) { if (!file || !file.name.toLowerCase().endsWith(".csv")) { $("status").textContent = "Please choose a CSV report"; return; } const reader = new FileReader(); reader.onload = () => { findings = csvToRows(reader.result); $("status").textContent = `${file.name} loaded`; saveSnapshot(); refreshServices(); render(); }; reader.readAsText(file); }
+const dropZone = $("dropZone"); dropZone.addEventListener("dragover", event => { event.preventDefault(); dropZone.classList.add("drop-active"); }); dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drop-active")); dropZone.addEventListener("drop", event => { event.preventDefault(); dropZone.classList.remove("drop-active"); loadFile(event.dataTransfer.files[0]); });
+$("reset").addEventListener("click", () => { $("search").value = ""; $("severity").value = ""; $("service").value = ""; render(); });
+$("export").addEventListener("click", () => { const csv = ["severity,service,resource,issue,fix", ...visibleFindings.map(f => [f.severity,f.service,f.resource,f.issue,f.fix].map(v => `"${String(v).replace(/"/g,'""')}"`).join(","))].join("\n"); const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); link.download = "filtered_security_report.csv"; link.click(); URL.revokeObjectURL(link.href); });
+$("rows").addEventListener("click", event => { const row = event.target.closest("tr"); if (!row) return; const f = visibleFindings[Number(row.dataset.index)]; $("detailTitle").textContent = `${f.severity}: ${f.issue}`; $("detailResource").textContent = `${f.service} / ${f.resource}`; $("detailFix").textContent = f.fix; $("detail").showModal(); });
+$("closeDetail").addEventListener("click", () => $("detail").close());
+$("clearHistory").addEventListener("click", () => { history=[]; localStorage.removeItem(historyKey); drawTrend(); });
+$("askAi").addEventListener("click", answerAi); $("aiQuestion").addEventListener("keydown", event => { if (event.key === "Enter") answerAi(); });
+["search","severity","service"].forEach(id => $(id).addEventListener("input", render));
+refreshServices(); render();
+</script>
+</body>
+</html>
